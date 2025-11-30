@@ -346,7 +346,7 @@ class ServerApp:
         t.start()
 
         self.is_running = True
-        self.btn_start.config(text="停止服务", state='normal', bg="#ff3b30")
+        self.btn_start.config(text="停止服务并退出", state='normal', bg="#ff3b30")
 
         # 禁用端口输入框
         self.port_entry.config(state='disabled', bg="#f0f0f0")
