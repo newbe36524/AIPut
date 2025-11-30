@@ -289,13 +289,13 @@ class ServerApp:
         self.port_entry.pack(fill='x', pady=(0, 15))
 
         # 启动按钮
-        self.btn_start = tk.Button(main_frame, text="启动服务并生成二维码", command=self.toggle_server, 
-                                   bg="#007AFF", fg="white", font=("Arial", 12, "bold"), 
+        self.btn_start = tk.Button(main_frame, text="启动服务", command=self.toggle_server,
+                                   bg="#007AFF", fg="white", font=("Arial", 12, "bold"),
                                    relief="flat", pady=8, cursor="hand2")
         self.btn_start.pack(fill='x', pady=(0, 20))
 
         # 二维码显示区域
-        self.qr_label = tk.Label(main_frame, text="点击启动后\n在此处显示二维码",
+        self.qr_label = tk.Label(main_frame, text="点击启动后在此处显示",
                                  bg="#e6e6e6", fg="#888", width=30, height=12)
         self.qr_label.pack(pady=5)
 
