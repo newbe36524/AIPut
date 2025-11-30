@@ -51,7 +51,7 @@ QAA AirType 是一个轻量级的远程输入工具，让你可以通过手机�
 ```bash
 git clone https://github.com/QAA-Tools/qaa-airtype.git
 cd qaa-airtype
-pip install -r requirements.txt
+pip install flask pyautogui pyperclip qrcode pillow
 python src/remote_server.py
 ```
 
@@ -63,7 +63,6 @@ qaa-airtype/
 │   ├── remote_server.py     # 主程序
 │   └── generate_icon.py     # 图标生成
 ├── build.ps1                # 构建脚本
-├── requirements.txt         # 依赖列表
 ├── pyproject.toml          # 项目配置
 ├── LICENSE                 # MIT 协议
 └── README.md               # 项目说明
