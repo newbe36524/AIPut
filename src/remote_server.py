@@ -294,14 +294,18 @@ class ServerApp:
         self.btn_start.pack(fill='x', pady=(0, 20))
 
         # 二维码显示区域
-        self.qr_label = tk.Label(main_frame, text="点击启动后\n在此处显示二维码", 
+        self.qr_label = tk.Label(main_frame, text="点击启动后\n在此处显示二维码",
                                  bg="#e6e6e6", fg="#888", width=30, height=12)
         self.qr_label.pack(pady=5)
 
         # 底部链接提示
         self.url_label = tk.Label(main_frame, text="", fg="blue", font=("Arial", 9, "underline"), cursor="hand2")
-        self.url_label.pack(pady=(10, 0))
+        self.url_label.pack(pady=(5, 0))
         self.url_label.bind("<Button-1>", self.open_browser) # 点击用浏览器打开
+
+        # 提示信息
+        self.tip_label = tk.Label(main_frame, text="", fg="#888", font=("Arial", 8))
+        self.tip_label.pack(pady=(5, 0))
 
     def run_flask(self, host, port):
         try:
@@ -357,6 +361,7 @@ class ServerApp:
             )
             self.url_label.config(text="请手动输入上方地址")
             self.current_url = f"http://{all_ips[0]}:{port}" if all_ips else ""
+            self.tip_label.config(text="")
         else:
             # 生成并显示二维码
             url = f"http://{host_ip}:{port}"
@@ -369,6 +374,7 @@ class ServerApp:
             # 显示文本链接
             self.url_label.config(text=url)
             self.current_url = url
+            self.tip_label.config(text="提示：如无法访问，请切换 IP 或端口重新扫码")
 
     def on_ip_changed(self, event=None):
         """当 IP 改变时更新二维码"""
@@ -392,6 +398,7 @@ class ServerApp:
             )
             self.url_label.config(text="请手动输入上方地址")
             self.current_url = f"http://{all_ips[0]}:{port}" if all_ips else ""
+            self.tip_label.config(text="")
         else:
             # 生成并显示二维码
             url = f"http://{host_ip}:{port}"
@@ -404,6 +411,8 @@ class ServerApp:
             # 显示文本链接
             self.url_label.config(text=url)
             self.current_url = url
+            self.tip_label.config(text="提示：如无法访问，请切换 IP 或端口重新扫码")
+            self.tip_label.config(text="提示：如无法访问，请切换 IP 重新扫码")
 
     def open_browser(self, event):
         if hasattr(self, 'current_url'):
