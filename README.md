@@ -39,105 +39,35 @@ QAA AirType 是一个轻量级的远程输入工具，让你可以通过手机�
 
 ## 🚀 快速开始
 
-### 普通用户（推荐）
+### 普通用户
 
 1. 下载 `QAA-AirType.exe`
-2. 双击运行程序
-3. 点击"启动服务并生成二维码"按钮
-4. 使用手机扫描二维码
-5. 在手机网页中使用语音输入，点击发送即可
-
-就这么简单！
+2. 双击运行，点击"启动服务并生成二维码"
+3. 手机扫描二维码（确保同一 WiFi）
+4. 在手机网页使用语音输入，点击发送
 
 ### 开发者
 
-如果你想从源码运行或修改程序：
-
-#### 1. 安装依赖
+**运行源码：**
 
 ```bash
-# 克隆项目
 git clone https://github.com/QAA-Tools/qaa-airtype.git
 cd qaa-airtype
-
-# 方式一：使用 pip（推荐）
 pip install -e .
-
-# 方式二：使用 uv（更快）
-pip install uv
-uv pip install -e .
-
-# 方式三：传统方式
-pip install -r requirements.txt
-```
-
-#### 2. 运行程序
-
-```bash
 python remote_server.py
 ```
 
-#### 3. 编译可执行文件（可选）
-
-如果你想自己编译：
+**编译可执行文件：**
 
 ```bash
-# 使用提供的构建脚本（会自动生成图标）
 powershell -ExecutionPolicy Bypass -File build.ps1
-
-# 或手动编译
-pip install pyinstaller
-python generate_icon.py
-pyinstaller --onefile --windowed --name="RemoteTyper" --icon=icon.ico remote_server.py
 ```
 
 编译完成后，可执行文件位于 `dist/QAA-AirType.exe`
 
-## 🎯 使用说明
+## 🔧 技术栈
 
-### 基本流程
-
-1. **启动服务** - 运行程序，点击"启动服务并生成二维码"
-2. **连接手机** - 确保手机和电脑在同一 WiFi，扫描二维码
-3. **开始输入** - 在手机网页使用语音输入，点击发送
-
-### 使用技巧
-
-- **语音输入**：推荐使用豆包输入法，识别准确率高
-- **历史记录**：点击历史记录可快速重发
-- **自定义端口**：如果默认端口 5000 被占用，可在启动前修改
-
-## 🔧 技术架构
-
-- **后端**：Flask Web 框架
-- **前端**：原生 HTML/CSS/JavaScript
-- **GUI**：Tkinter
-- **输入模拟**：PyAutoGUI + Pyperclip
-- **二维码生成**：qrcode + Pillow
-
-## 📋 依赖项
-
-```
-flask>=3.0.0
-pyautogui>=0.9.54
-pyperclip>=1.8.2
-qrcode>=7.4.2
-pillow>=10.0.0
-```
-
-## 🛠️ 常见问题
-
-**Q: 手机无法连接？**
-- 确保手机和电脑在同一 WiFi
-- 检查防火墙设置
-- 尝试更换端口号
-
-**Q: 文字无法输入？**
-- 确保电脑上有文本框处于激活状态
-- 点击你想输入的位置
-
-**Q: 二维码无法生成？**
-- 重新安装依赖：`pip install --upgrade qrcode pillow`
+Flask · Tkinter · PyAutoGUI · Pyperclip · QRCode · Pillow
 
 ## 📁 项目结构
 
@@ -165,14 +95,12 @@ qaa-airtype/
 
 ## 🙏 致谢
 
-- **Gemini**：感谢 Gemini 完成了核心程序的编写
-- **Claude**：感谢 Claude 对这个项目进行了标准化的设计和优化
+- **Gemini**：核心程序编写
+- **Claude**：项目标准化设计
 
-## 📮 联系方式
+## 📮 反馈
 
-如有问题或建议：
-
-- 提交 [Issue](https://github.com/QAA-Tools/qaa-airtype/issues)
+有问题或建议？提交 [Issue](https://github.com/QAA-Tools/qaa-airtype/issues)
 
 ---
 
