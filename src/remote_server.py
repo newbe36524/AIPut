@@ -246,6 +246,9 @@ def get_all_ips():
         ips.remove(main_ip)
     ips.insert(0, main_ip)
 
+    # 在最前面添加 0.0.0.0（监听所有网卡）
+    ips.insert(0, '0.0.0.0 (所有网卡)')
+
     return ips
 
 # --- GUI 主程序 ---
@@ -330,7 +333,14 @@ class ServerApp:
 
         port = int(port_str)
         host_ip = self.ip_var.get()
-        url = f"http://{host_ip}:{port}"
+
+        # 处理 "0.0.0.0 (所有网卡)" 的情况
+        if host_ip.startswith('0.0.0.0'):
+            # 用于二维码显示的实际 IP
+            display_ip = get_host_ip()
+            url = f"http://{display_ip}:{port}"
+        else:
+            url = f"http://{host_ip}:{port}"
 
         # 启动 Flask 线程
         t = threading.Thread(target=self.run_flask, args=('0.0.0.0', port), daemon=True)
