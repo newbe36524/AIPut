@@ -13,6 +13,7 @@ from PIL import Image, ImageTk
 import io
 import pystray
 from pystray import MenuItem as item
+import os
 
 # --- Flask 应用配置 ---
 app = Flask(__name__)
@@ -298,6 +299,13 @@ class ServerApp:
         # 绑定窗口关闭事件
         self.root.protocol('WM_DELETE_WINDOW', self.hide_window)
 
+        # 设置窗口图标
+        try:
+            if os.path.exists('icon.ico'):
+                self.root.iconbitmap('icon.ico')
+        except Exception:
+            pass
+
         # 系统托盘图标
         self.tray_icon = None
         self.create_tray_icon()
@@ -471,8 +479,16 @@ class ServerApp:
 
     def create_tray_icon(self):
         """创建系统托盘图标"""
-        # 创建一个简单的图标
-        icon_image = Image.new('RGB', (64, 64), color='#007AFF')
+        # 尝试加载 icon.png，如果不存在则创建简单图标
+        try:
+            if os.path.exists('icon.png'):
+                icon_image = Image.open('icon.png')
+            else:
+                # 创建一个简单的蓝色图标
+                icon_image = Image.new('RGB', (64, 64), color='#007AFF')
+        except Exception:
+            # 如果加载失败，创建简单图标
+            icon_image = Image.new('RGB', (64, 64), color='#007AFF')
 
         # 创建托盘菜单
         menu = pystray.Menu(
