@@ -47,6 +47,8 @@ An AI-enhanced tool that enables remote input to your computer through mobile vo
 
 ## 🔄 Interaction Flow Diagram
 
+### 1️⃣ Mobile End Flow
+
 ```mermaid
 %%{init: {
   'theme': 'base',
@@ -58,79 +60,70 @@ An AI-enhanced tool that enables remote input to your computer through mobile vo
     'sectionBkgColor': '#161b22',
     'altSectionBkgColor': '#0d1117',
     'gridColor': '#30363d',
-    'secondaryColor': '#1f6feb',
-    'tertiaryColor': '#238636',
+    'secondaryColor': '#f85149',
+    'tertiaryColor': '#f85149',
     'background': '#0d1117'
   }
 }}%%
-flowchart TD
-    %% First Row: Mobile End - Horizontal Layout
-    subgraph Mobile[📱 Mobile End]
-        direction LR
-        User[👤 User] --> VoiceInput[🎤 Voice Input]
-        VoiceInput --> DoubaoInput[🎯 Doubao Input Method]
-        DoubaoInput --> TextResult[📝 Recognized Text]
-        TextResult --> WebInterface[🌐 Web Interface]
-        WebInterface --> AIModeSelect[⚙️ Select AI Mode]
-    end
+flowchart LR
+    User[👤 User] --> VoiceInput[🎤 Voice Input]
+    VoiceInput --> DoubaoInput[🎯 Doubao Input Method]
+    DoubaoInput --> TextResult[📝 Recognized Text]
+    TextResult --> WebInterface[🌐 Web Interface]
+    WebInterface --> AIModeSelect[⚙️ Select AI Mode]
+    AIModeSelect --> Transmit[📡 Send to Computer]
 
-    %% Second Row: Network Transmission
-    AIModeSelect --> Transmit[📡 Local Network Transmission]
+    classDef default fill:#161b22,stroke:#f85149,stroke-width:2px,color:#f0f6fc
+```
 
-    %% Third Row: Local Machine Processing
-    subgraph LocalPC[💻 Local Machine]
-        direction LR
-        subgraph LeftSide[📥 Reception & Processing]
-            LocalServer[🖥️ Local Server]
-        end
+### 2️⃣ Computer End Processing Flow
 
-        subgraph CenterSide[🤖 AI Processing]
-            direction TB
-            AIMode{AI Mode}
-            AIMode -->|No Processing| DirectSend[⚡ Direct Send]
-            AIMode -->|Task Organization| TaskOrganize[📋 Task Organization]
-            AIMode -->|Translate to English| TranslateEN[🌍 Translate to English]
-            AIMode -->|Spoken to Written| Formalize[✍️ Spoken to Written]
+```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#0d1117',
+    'primaryTextColor': '#f0f6fc',
+    'primaryBorderColor': '#30363d',
+    'lineColor': '#8b949e',
+    'sectionBkgColor': '#161b22',
+    'altSectionBkgColor': '#0d1117',
+    'gridColor': '#30363d',
+    'secondaryColor': '#3fb950',
+    'tertiaryColor': '#3fb950',
+    'background': '#0d1117'
+  }
+}}%%
+flowchart LR
+    Receive[📡 Receive Data] --> LocalServer[🖥️ Local Server]
 
-            TaskOrganize --> ProcessedText[🔄 AI Processed Text]
-            TranslateEN --> ProcessedText
-            Formalize --> ProcessedText
-            DirectSend --> OriginalText[📤 Original Text]
-        end
+    LocalServer --> AIMode{🤖 AI Processing Mode}
+    LocalServer -.->|Direct Send| AutoType[⌨️ Auto Type]
 
-        subgraph RightSide[📤 Output & Execution]
-            AutoType[⌨️ Auto Type]
-            TargetApp[🎯 Text Editor]
-        end
-    end
+    AIMode --> TaskOrganize[📋 Task Organization]
+    AIMode --> TranslateEN[🌍 Translate to English]
+    AIMode --> Formalize[✍️ Spoken to Written]
 
-    %% Connections
-    Transmit --> LocalServer
-    LocalServer --> AIMode
+    TaskOrganize --> ProcessedText[📄 Processed Text]
+    TranslateEN --> ProcessedText
+    Formalize --> ProcessedText
+
     ProcessedText --> AutoType
-    OriginalText --> AutoType
-    AutoType --> TargetApp
 
-    %% Node styles - Dark theme optimized
-    classDef userNode fill:#161b22,stroke:#58a6ff,stroke-width:2px,color:#f0f6fc
-    classDef phoneNode fill:#161b22,stroke:#f85149,stroke-width:2px,color:#f0f6fc
-    classDef networkNode fill:#161b22,stroke:#a371f7,stroke-width:2px,color:#f0f6fc
-    classDef serverNode fill:#161b22,stroke:#3fb950,stroke-width:2px,color:#f0f6fc
-    classDef aiNode fill:#161b22,stroke:#f0883e,stroke-width:2px,color:#f0f6fc
+    AutoType --> IM[💬 Instant Messaging]
+    AutoType --> VSCode[📝 VS Code]
+    AutoType --> Word[📄 Word]
+    AutoType --> Notepad[📋 Notepad]
+    AutoType --> Others[🔧 More...]
 
-    %% Apply styles to nodes
-    class User userNode
-    class VoiceInput,DouyinInput,TextResult,WebInterface,AIModeSelect phoneNode
-    class Transmit networkNode
-    class LocalServer,AutoType,TargetApp serverNode
-    class AIMode,TaskOrganize,TranslateEN,Formalize,DirectSend,ProcessedText,OriginalText aiNode
+    classDef default fill:#161b22,stroke:#3fb950,stroke-width:2px,color:#f0f6fc
 ```
 
 ### 📋 Flow Description
 
 - **🖥️ Local Server**: Flask service running on the user's local machine, receiving data from mobile devices via LAN
 - **☁️ Cloud AI Services**: Utilizing third-party platforms like Zhipu AI, Azure AI, OpenAI, or Anthropic AI for text processing
-- **🎯 Text Editor**: Supports any text input scenario, including Notepad, IDE, GitHub Copilot input box, etc.
+- **🎯 Target Applications**: Supports all applications with text input fields, including instant messaging software (WeChat, QQ, Telegram), VS Code, Word, Notepad, etc.
 
 ## 🌟 Core Highlights
 

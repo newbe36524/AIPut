@@ -47,6 +47,8 @@
 
 ## 🔄 交互流程示意图
 
+### 1️⃣ 手机端流程
+
 ```mermaid
 %%{init: {
   'theme': 'base',
@@ -58,79 +60,70 @@
     'sectionBkgColor': '#161b22',
     'altSectionBkgColor': '#0d1117',
     'gridColor': '#30363d',
-    'secondaryColor': '#1f6feb',
-    'tertiaryColor': '#238636',
+    'secondaryColor': '#f85149',
+    'tertiaryColor': '#f85149',
     'background': '#0d1117'
   }
 }}%%
-flowchart TD
-    %% 第一行：手机端横向展示
-    subgraph Mobile[📱 手机端]
-        direction LR
-        User[👤 用户] --> VoiceInput[🎤 语音输入]
-        VoiceInput --> DouyinInput[🎯 豆包输入法]
-        DouyinInput --> TextResult[📝 识别文字]
-        TextResult --> WebInterface[🌐 Web界面]
-        WebInterface --> AIModeSelect[⚙️ 选择AI模式]
-    end
+flowchart LR
+    User[👤 用户] --> VoiceInput[🎤 语音输入]
+    VoiceInput --> DouyinInput[🎯 豆包输入法]
+    DouyinInput --> TextResult[📝 识别文字]
+    TextResult --> WebInterface[🌐 Web界面]
+    WebInterface --> AIModeSelect[⚙️ 选择AI模式]
+    AIModeSelect --> Transmit[📡 发送到电脑]
 
-    %% 第二行：局域网传输
-    AIModeSelect --> Transmit[📡 本地网络传输]
+    classDef default fill:#161b22,stroke:#f85149,stroke-width:2px,color:#f0f6fc
+```
 
-    %% 第三行：本机处理
-    subgraph LocalPC[💻 本机]
-        direction LR
-        subgraph LeftSide[📥 接收处理]
-            LocalServer[🖥️ 本地服务器]
-        end
+### 2️⃣ 电脑端处理流程
 
-        subgraph CenterSide[🤖 AI处理]
-            direction TB
-            AIMode{AI模式}
-            AIMode -->|无处理| DirectSend[⚡ 直接发送]
-            AIMode -->|任务整理| TaskOrganize[📋 任务整理]
-            AIMode -->|翻译英文| TranslateEN[🌍 翻译为英文]
-            AIMode -->|口语书面化| Formalize[✍️ 口语书面化]
+```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#0d1117',
+    'primaryTextColor': '#f0f6fc',
+    'primaryBorderColor': '#30363d',
+    'lineColor': '#8b949e',
+    'sectionBkgColor': '#161b22',
+    'altSectionBkgColor': '#0d1117',
+    'gridColor': '#30363d',
+    'secondaryColor': '#3fb950',
+    'tertiaryColor': '#3fb950',
+    'background': '#0d1117'
+  }
+}}%%
+flowchart LR
+    Receive[📡 接收数据] --> LocalServer[🖥️ 本地服务器]
 
-            TaskOrganize --> ProcessedText[🔄 AI处理后文本]
-            TranslateEN --> ProcessedText
-            Formalize --> ProcessedText
-            DirectSend --> OriginalText[📤 原始文本]
-        end
+    LocalServer --> AIMode{🤖 AI处理模式}
+    LocalServer -.->|直接发送| AutoType[⌨️ 自动输入]
 
-        subgraph RightSide[📤 输出执行]
-            AutoType[⌨️ 自动输入]
-            TargetApp[🎯 文本编辑器]
-        end
-    end
+    AIMode --> TaskOrganize[📋 任务整理]
+    AIMode --> TranslateEN[🌍 翻译英文]
+    AIMode --> Formalize[✍️ 口语书面化]
 
-    %% 连接关系
-    Transmit --> LocalServer
-    LocalServer --> AIMode
+    TaskOrganize --> ProcessedText[📄 处理后文本]
+    TranslateEN --> ProcessedText
+    Formalize --> ProcessedText
+
     ProcessedText --> AutoType
-    OriginalText --> AutoType
-    AutoType --> TargetApp
 
-    %% 节点样式 - 深色主题适配
-    classDef userNode fill:#161b22,stroke:#58a6ff,stroke-width:2px,color:#f0f6fc
-    classDef phoneNode fill:#161b22,stroke:#f85149,stroke-width:2px,color:#f0f6fc
-    classDef networkNode fill:#161b22,stroke:#a371f7,stroke-width:2px,color:#f0f6fc
-    classDef serverNode fill:#161b22,stroke:#3fb950,stroke-width:2px,color:#f0f6fc
-    classDef aiNode fill:#161b22,stroke:#f0883e,stroke-width:2px,color:#f0f6fc
+    AutoType --> IM[💬 即时通讯软件]
+    AutoType --> VSCode[📝 VS Code]
+    AutoType --> Word[📄 Word]
+    AutoType --> Notepad[📋 记事本]
+    AutoType --> Others[🔧 更多...]
 
-    %% 应用样式到节点
-    class User userNode
-    class VoiceInput,DouyinInput,TextResult,WebInterface,AIModeSelect phoneNode
-    class Transmit networkNode
-    class LocalServer,AutoType,TargetApp serverNode
-    class AIMode,TaskOrganize,TranslateEN,Formalize,DirectSend,ProcessedText,OriginalText aiNode
+    classDef default fill:#161b22,stroke:#3fb950,stroke-width:2px,color:#f0f6fc
 ```
 
 ### 📋 流程说明
 
 - **🖥️ 本地服务器**：运行在用户本机的Flask服务，通过局域网接收手机发送的数据
 - **☁️ 云端AI服务**：采用智谱AI、Azure AI、OpenAI或Anthropic AI等第三方平台进行文本处理
-- **🎯 文本编辑器**：支持任何文本输入场景，包括记事本、IDE、GitHub Copilot输入框等
+- **🎯 目标应用**：支持所有带文本框的应用，包括即时通讯软件（微信、QQ、Telegram）、VS Code、Word、记事本等
 
 ## 🌟 核心亮点
 
