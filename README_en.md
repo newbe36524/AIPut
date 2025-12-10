@@ -45,6 +45,93 @@ An AI-enhanced tool that enables remote input to your computer through mobile vo
   </table>
 </div>
 
+## 🔄 Interaction Flow Diagram
+
+```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#0d1117',
+    'primaryTextColor': '#f0f6fc',
+    'primaryBorderColor': '#30363d',
+    'lineColor': '#8b949e',
+    'sectionBkgColor': '#161b22',
+    'altSectionBkgColor': '#0d1117',
+    'gridColor': '#30363d',
+    'secondaryColor': '#1f6feb',
+    'tertiaryColor': '#238636',
+    'background': '#0d1117'
+  }
+}}%%
+flowchart TD
+    %% First Row: Mobile End - Horizontal Layout
+    subgraph Mobile[📱 Mobile End]
+        direction LR
+        User[👤 User] --> VoiceInput[🎤 Voice Input]
+        VoiceInput --> DoubaoInput[🎯 Doubao Input Method]
+        DoubaoInput --> TextResult[📝 Recognized Text]
+        TextResult --> WebInterface[🌐 Web Interface]
+        WebInterface --> AIModeSelect[⚙️ Select AI Mode]
+    end
+
+    %% Second Row: Network Transmission
+    AIModeSelect --> Transmit[📡 Local Network Transmission]
+
+    %% Third Row: Local Machine Processing
+    subgraph LocalPC[💻 Local Machine]
+        direction LR
+        subgraph LeftSide[📥 Reception & Processing]
+            LocalServer[🖥️ Local Server]
+        end
+
+        subgraph CenterSide[🤖 AI Processing]
+            direction TB
+            AIMode{AI Mode}
+            AIMode -->|No Processing| DirectSend[⚡ Direct Send]
+            AIMode -->|Task Organization| TaskOrganize[📋 Task Organization]
+            AIMode -->|Translate to English| TranslateEN[🌍 Translate to English]
+            AIMode -->|Spoken to Written| Formalize[✍️ Spoken to Written]
+
+            TaskOrganize --> ProcessedText[🔄 AI Processed Text]
+            TranslateEN --> ProcessedText
+            Formalize --> ProcessedText
+            DirectSend --> OriginalText[📤 Original Text]
+        end
+
+        subgraph RightSide[📤 Output & Execution]
+            AutoType[⌨️ Auto Type]
+            TargetApp[🎯 Text Editor]
+        end
+    end
+
+    %% Connections
+    Transmit --> LocalServer
+    LocalServer --> AIMode
+    ProcessedText --> AutoType
+    OriginalText --> AutoType
+    AutoType --> TargetApp
+
+    %% Node styles - Dark theme optimized
+    classDef userNode fill:#161b22,stroke:#58a6ff,stroke-width:2px,color:#f0f6fc
+    classDef phoneNode fill:#161b22,stroke:#f85149,stroke-width:2px,color:#f0f6fc
+    classDef networkNode fill:#161b22,stroke:#a371f7,stroke-width:2px,color:#f0f6fc
+    classDef serverNode fill:#161b22,stroke:#3fb950,stroke-width:2px,color:#f0f6fc
+    classDef aiNode fill:#161b22,stroke:#f0883e,stroke-width:2px,color:#f0f6fc
+
+    %% Apply styles to nodes
+    class User userNode
+    class VoiceInput,DouyinInput,TextResult,WebInterface,AIModeSelect phoneNode
+    class Transmit networkNode
+    class LocalServer,AutoType,TargetApp serverNode
+    class AIMode,TaskOrganize,TranslateEN,Formalize,DirectSend,ProcessedText,OriginalText aiNode
+```
+
+### 📋 Flow Description
+
+- **🖥️ Local Server**: Flask service running on the user's local machine, receiving data from mobile devices via LAN
+- **☁️ Cloud AI Services**: Utilizing third-party platforms like Zhipu AI, Azure AI, OpenAI, or Anthropic AI for text processing
+- **🎯 Text Editor**: Supports any text input scenario, including Notepad, IDE, GitHub Copilot input box, etc.
+
 ## 🌟 Core Highlights
 
 ### 🎤 High-Quality Chinese Voice Input - Doubao Input Method Recommended

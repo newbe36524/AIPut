@@ -45,6 +45,93 @@
   </table>
 </div>
 
+## 🔄 交互流程示意图
+
+```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#0d1117',
+    'primaryTextColor': '#f0f6fc',
+    'primaryBorderColor': '#30363d',
+    'lineColor': '#8b949e',
+    'sectionBkgColor': '#161b22',
+    'altSectionBkgColor': '#0d1117',
+    'gridColor': '#30363d',
+    'secondaryColor': '#1f6feb',
+    'tertiaryColor': '#238636',
+    'background': '#0d1117'
+  }
+}}%%
+flowchart TD
+    %% 第一行：手机端横向展示
+    subgraph Mobile[📱 手机端]
+        direction LR
+        User[👤 用户] --> VoiceInput[🎤 语音输入]
+        VoiceInput --> DouyinInput[🎯 豆包输入法]
+        DouyinInput --> TextResult[📝 识别文字]
+        TextResult --> WebInterface[🌐 Web界面]
+        WebInterface --> AIModeSelect[⚙️ 选择AI模式]
+    end
+
+    %% 第二行：局域网传输
+    AIModeSelect --> Transmit[📡 本地网络传输]
+
+    %% 第三行：本机处理
+    subgraph LocalPC[💻 本机]
+        direction LR
+        subgraph LeftSide[📥 接收处理]
+            LocalServer[🖥️ 本地服务器]
+        end
+
+        subgraph CenterSide[🤖 AI处理]
+            direction TB
+            AIMode{AI模式}
+            AIMode -->|无处理| DirectSend[⚡ 直接发送]
+            AIMode -->|任务整理| TaskOrganize[📋 任务整理]
+            AIMode -->|翻译英文| TranslateEN[🌍 翻译为英文]
+            AIMode -->|口语书面化| Formalize[✍️ 口语书面化]
+
+            TaskOrganize --> ProcessedText[🔄 AI处理后文本]
+            TranslateEN --> ProcessedText
+            Formalize --> ProcessedText
+            DirectSend --> OriginalText[📤 原始文本]
+        end
+
+        subgraph RightSide[📤 输出执行]
+            AutoType[⌨️ 自动输入]
+            TargetApp[🎯 文本编辑器]
+        end
+    end
+
+    %% 连接关系
+    Transmit --> LocalServer
+    LocalServer --> AIMode
+    ProcessedText --> AutoType
+    OriginalText --> AutoType
+    AutoType --> TargetApp
+
+    %% 节点样式 - 深色主题适配
+    classDef userNode fill:#161b22,stroke:#58a6ff,stroke-width:2px,color:#f0f6fc
+    classDef phoneNode fill:#161b22,stroke:#f85149,stroke-width:2px,color:#f0f6fc
+    classDef networkNode fill:#161b22,stroke:#a371f7,stroke-width:2px,color:#f0f6fc
+    classDef serverNode fill:#161b22,stroke:#3fb950,stroke-width:2px,color:#f0f6fc
+    classDef aiNode fill:#161b22,stroke:#f0883e,stroke-width:2px,color:#f0f6fc
+
+    %% 应用样式到节点
+    class User userNode
+    class VoiceInput,DouyinInput,TextResult,WebInterface,AIModeSelect phoneNode
+    class Transmit networkNode
+    class LocalServer,AutoType,TargetApp serverNode
+    class AIMode,TaskOrganize,TranslateEN,Formalize,DirectSend,ProcessedText,OriginalText aiNode
+```
+
+### 📋 流程说明
+
+- **🖥️ 本地服务器**：运行在用户本机的Flask服务，通过局域网接收手机发送的数据
+- **☁️ 云端AI服务**：采用智谱AI、Azure AI、OpenAI或Anthropic AI等第三方平台进行文本处理
+- **🎯 文本编辑器**：支持任何文本输入场景，包括记事本、IDE、GitHub Copilot输入框等
+
 ## 🌟 核心亮点
 
 ### 🎤 高质量中文语音输入 - 豆包输入法推荐
