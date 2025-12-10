@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>无线键盘</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- Header with menu button and action buttons -->
+    <div class="header">
+        <div class="menu-button" id="menuBtn">
+            <div class="menu-icon">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        <div class="prompt-selector">
+            <select id="promptSelect" class="prompt-dropdown" title="选择提示词">
+                <option value="loading">加载中...</option>
+            </select>
+        </div>
+        <div class="brave-mode-indicator" id="braveModeIndicator" title="勇敢模式">
+            <span class="brave-icon">🦁</span>
+        </div>
+        <div class="header-buttons">
+            <button id="clearBtn" onclick="handleClear()">清空</button>
+            <button id="sendBtn" onclick="handleSend()">发送</button>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+        <div class="input-container">
+            <textarea id="textInput" placeholder="输入文字..." autofocus autocomplete="off" rows="1"></textarea>
+            <!-- Loading overlay -->
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="loading-spinner"></div>
+                <div class="loading-text" id="loadingText">发送中...</div>
+            </div>
+        </div>
+        <div id="status"></div>
+    </div>
+
+    <!-- Menu overlay -->
+    <div class="menu-overlay" id="menuOverlay"></div>
+
+    <!-- Side menu -->
+    <div class="side-menu" id="sideMenu">
+        <div class="menu-header">
+            <span style="font-size: 18px; font-weight: 600;">菜单</span>
+            <div class="menu-close" id="menuClose">✕</div>
+        </div>
+        <div class="menu-section">
+            <div class="menu-item">
+                <div class="brave-mode-toggle">
+                    <span class="brave-mode-label">勇敢模式</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="braveMode">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="history-section">
+            <div class="history-header">最近记录</div>
+            <ul id="historyList" class="history-list"></ul>
+            <button class="clear-history-btn" onclick="clearHistory()">清空历史</button>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

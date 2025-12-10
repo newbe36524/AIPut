@@ -1,0 +1,58 @@
+name: AI功能测试
+
+on:
+  push:
+    branches: [ main, master, feature/* ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  test-ai:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: 设置 Python 环境
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: 安装依赖
+      run: |
+        pip install aiohttp python-dotenv
+
+    - name: 配置环境变量
+      run: |
+        # 从 GitHub Secrets 中读取 API Keys
+        if [ -n "$ANTHROPIC_API_KEY" ]; then
+          echo "ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY" >> .env
+          echo "ANTHROPIC_API_BASE_URL=$ANTHROPIC_API_BASE_URL" >> .env
+          echo "ANTHROPIC_MODEL=$ANTHROPIC_MODEL" >> .env
+        fi
+
+        if [ -n "$ZAI_API_KEY" ]; then
+          echo "ZAI_API_KEY=$ZAI_API_KEY" >> .env
+          echo "ZAI_API_BASE_URL=$ZAI_API_BASE_URL" >> .env
+          echo "ZAI_MODEL=$ZAI_MODEL" >> .env
+        fi
+
+        # 设置默认配置
+        echo "AI_PROCESSOR_DEFAULT=anthropic" >> .env
+        echo "AI_PROCESSING_TIMEOUT=30" >> .env
+      env:
+        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        ANTHROPIC_API_BASE_URL: ${{ secrets.ANTHROPIC_API_BASE_URL }}
+        ANTHROPIC_MODEL: ${{ secrets.ANTHROPIC_MODEL }}
+        ZAI_API_KEY: ${{ secrets.ZAI_API_KEY }}
+        ZAI_API_BASE_URL: ${{ secrets.ZAI_API_BASE_URL }}
+        ZAI_MODEL: ${{ secrets.ZAI_MODEL }}
+
+    - name: 运行 AI 测试 (CI模式)
+      run: |
+        ./test-ai.sh --ci
+
+    - name: 运行专门的 CI 测试脚本
+      run: |
+        ./test-ai-ci.sh

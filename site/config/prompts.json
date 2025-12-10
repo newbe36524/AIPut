@@ -1,0 +1,28 @@
+{
+  "prompts": [
+    {
+      "id": "normal",
+      "name": "无提示词",
+      "description": "直接输入，不进行处理",
+      "prompt": ""
+    },
+    {
+      "id": "general-refine",
+      "name": "口语书面化",
+      "description": "将口语化内容整理为书面化表达",
+      "prompt": "请将以下口语化文本整理为通顺流畅的书面表达。要求：\n1. 删除不必要的语气助词（如啊、呢、吧、哦等）\n2. 消除重复表达和冗余内容\n3. 调整语序，使表达更加清晰连贯\n4. 优化语句结构，使用更规范的书面用语\n5. 保持原意不变，仅提升表达的流畅度和专业性\n6. 确保逻辑清晰，层次分明\n\n注意：只返回一个确定的书面化结果，不要提供多个选项或解释。\n\n{user_input}"
+    },
+    {
+      "id": "agent-task",
+      "name": "任务整理",
+      "description": "将文本整理为条理清晰的任务要求",
+      "prompt": "请将以下文本内容整理成条理清晰、结构化的任务要求列表。要求：\n1. 将口语化表达转换为规范的任务描述\n2. 识别并列出具体的子任务点\n3. 明确每个任务的具体要求\n4. 使用简洁的条目格式输出\n5. 保持原意不变，仅优化表达\n\n{user_input}"
+    },
+    {
+      "id": "translate-en",
+      "name": "内容翻译为英文",
+      "description": "将文本内容翻译为英文",
+      "prompt": "Output only the English translation of the text below. Do not include any introductory phrases, explanations, or formatting. Start immediately with the translated text:\n\n{user_input}"
+    }
+  ]
+}
