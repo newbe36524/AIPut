@@ -339,7 +339,7 @@ python src/remote_server.py
 
 **推荐订阅方式：CodePlan 优惠订阅**
 为有效降低使用成本，推荐通过 CodePlan 订阅智谱API服务，可享受专属折扣优惠：
-👉 **立即订阅（享专属折扣）**：[https://www.bigmodel.cn/dev/app#channel=codeplan](https://www.bigmodel.cn/dev/app#channel=codeplan)
+👉 **立即订阅（享专属折扣）**：[https://www.bigmodel.cn/claude-code?ic=14BY54APZA](https://www.bigmodel.cn/claude-code?ic=14BY54APZA)
 
 **获取 API Key 步骤：**
 1. 访问 [智谱AI开放平台](https://open.bigmodel.cn/)

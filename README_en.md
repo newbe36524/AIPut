@@ -339,10 +339,10 @@ After successful execution, you will see:
 
 **Recommended Subscription Method: CodePlan Discount Subscription**
 To effectively reduce usage costs, we recommend subscribing to Zhipu AI API services through CodePlan to enjoy exclusive discounts:
-👉 **Subscribe Now (Get Exclusive Discount)**: [https://www.bigmodel.cn/dev/app#channel=codeplan](https://www.bigmodel.cn/dev/app#channel=codeplan)
+👉 **Subscribe Now (Get Exclusive Discount)**: [https://z.ai/subscribe?ic=1LOXF4RNQJ](https://z.ai/subscribe?ic=1LOXF4RNQJ)
 
 **API Key Acquisition Steps:**
-1. Visit [Zhipu AI Open Platform](https://open.bigmodel.cn/)
+1. Visit [Zhipu AI Open Platform](https://z.ai/manage-apikey/apikey-list)
 2. Register and log in to your account
 3. Go to API Key management page and create a new API Key
 4. Copy the API Key for subsequent configuration
@@ -364,7 +364,7 @@ Edit the `.env` file, replacing `your_zai_api_key_here` with your actual API Key
 ```bash
 # Zhipu AI API Configuration
 ZAI_API_KEY=your_actual_zai_api_key
-ZAI_API_BASE_URL=https://open.bigmodel.cn/api/anthropic
+ZAI_API_BASE_URL=https://api.z.ai/api/anthropic
 ZAI_MODEL=glm-4.6
 
 # AI Processor Settings
