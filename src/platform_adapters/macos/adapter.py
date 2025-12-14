@@ -38,7 +38,7 @@ except (ImportError, Exception):
 
 from platform_adapters.base import (
     KeyboardAdapter, ClipboardAdapter, SystemTrayAdapter,
-    ResourceAdapter, MenuItem
+    ResourceAdapter, NotificationAdapter, MenuItem
 )
 from platform_detection.detector import PlatformInfo
 
@@ -317,6 +317,89 @@ class MacOSResourceAdapter(ResourceAdapter):
         return os.path.join(home, 'Library', 'Application Support', 'AIPut')
 
 
+class MacOSNotificationAdapter(NotificationAdapter):
+    """macOS notification adapter using custom sound file."""
+
+    def __init__(self, platform_info: PlatformInfo):
+        self.platform_info = platform_info
+        self._afplay_available = self._check_afplay()
+
+        # Path to custom sound file - adjust for macOS path if needed
+        self._custom_sound = os.path.join(os.path.dirname(__file__), '..', '..', 'assets', '029_Decline_09.wav')
+        # Convert to absolute path
+        self._custom_sound = os.path.abspath(self._custom_sound)
+
+    def _check_afplay(self) -> bool:
+        """Check if afplay command is available."""
+        try:
+            subprocess.run(['afplay', '--help'], capture_output=True, check=True)
+            return True
+        except:
+            return False
+
+    def show_notification(self, title: str, message: str, duration: int = 5000) -> bool:
+        """Show a macOS notification (not implemented for now)."""
+        return False
+
+    def is_supported(self) -> bool:
+        """Check if notifications are supported."""
+        return True  # macOS supports sound notifications
+
+    def play_notification_sound(self, sound_type: str = NotificationAdapter.SOUND_NOTIFICATION) -> bool:
+        """Play a custom notification sound."""
+        print(f"[DEBUG] Trying to play custom sound: {os.path.basename(self._custom_sound)}")
+
+        # Check if custom sound file exists
+        if not os.path.exists(self._custom_sound):
+            print(f"[DEBUG] Custom sound file not found: {self._custom_sound}")
+            # Fallback to system sounds
+            return self._play_fallback_sounds()
+
+        # Try to play the custom sound file with afplay
+        if self._afplay_available:
+            try:
+                print(f"[DEBUG] Playing custom sound with afplay...")
+                # Play sound in background
+                subprocess.Popen(['afplay', self._custom_sound],
+                               stdout=subprocess.DEVNULL,
+                               stderr=subprocess.DEVNULL)
+                return True
+            except Exception as e:
+                print(f"[DEBUG] afplay failed for custom sound: {e}")
+
+        # Fallback to other methods
+        return self._play_fallback_sounds()
+
+    def _play_fallback_sounds(self) -> bool:
+        """Play fallback system sounds."""
+        # Try osascript to play system sound
+        try:
+            script = 'beep'
+            subprocess.Popen(['osascript', '-e', script],
+                           stdout=subprocess.DEVNULL,
+                           stderr=subprocess.DEVNULL)
+            return True
+        except Exception as e:
+            print(f"osascript beep failed: {e}")
+
+        # Try NSSound via PyObjC
+        try:
+            from AppKit import NSSound
+            sound = NSSound.soundNamed_('Ping')
+            if sound:
+                sound.play()
+                return True
+        except Exception as e:
+            print(f"NSSound failed: {e}")
+
+        # Fallback to terminal bell
+        try:
+            print('\a', end='', flush=True)
+            return True
+        except:
+            return False
+
+
 class MacOSAdapter:
     """Main macOS adapter combining all sub-adapters."""
 
@@ -326,6 +409,7 @@ class MacOSAdapter:
         self.clipboard = MacOSClipboardAdapter(platform_info)
         self.system_tray = MacOSSystemTrayAdapter(platform_info)
         self.resources = MacOSResourceAdapter(platform_info)
+        self.notifications = MacOSNotificationAdapter(platform_info)
 
     def initialize(self):
         """Initialize all adapters."""

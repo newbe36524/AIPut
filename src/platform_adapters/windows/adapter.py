@@ -5,6 +5,7 @@ Windows-specific platform adapter implementation.
 import asyncio
 import os
 import sys
+import subprocess
 import time
 from typing import List, Optional, Dict, Any
 from pathlib import Path
@@ -38,7 +39,7 @@ except (ImportError, Exception):
 
 from platform_adapters.base import (
     KeyboardAdapter, ClipboardAdapter, SystemTrayAdapter,
-    ResourceAdapter, MenuItem
+    ResourceAdapter, NotificationAdapter, MenuItem
 )
 from platform_detection.detector import PlatformInfo
 
@@ -337,6 +338,87 @@ class WindowsResourceAdapter(ResourceAdapter):
         return None
 
 
+class WindowsNotificationAdapter(NotificationAdapter):
+    """Windows notification adapter using custom sound file."""
+
+    def __init__(self, platform_info: PlatformInfo):
+        self.platform_info = platform_info
+        self._winsound_available = False
+        self._check_winsound()
+
+        # Path to custom sound file - adjust for Windows path if needed
+        self._custom_sound = os.path.join(os.path.dirname(__file__), '..', '..', 'assets', '029_Decline_09.wav')
+        # Convert to absolute path
+        self._custom_sound = os.path.abspath(self._custom_sound)
+
+    def _check_winsound(self):
+        """Check if winsound is available."""
+        try:
+            import winsound
+            self._winsound = winsound
+            self._winsound_available = True
+        except ImportError:
+            self._winsound_available = False
+
+    def show_notification(self, title: str, message: str, duration: int = 5000) -> bool:
+        """Show a Windows notification (not implemented for now)."""
+        return False
+
+    def is_supported(self) -> bool:
+        """Check if notifications are supported."""
+        return True  # Windows supports sound notifications
+
+    def play_notification_sound(self, sound_type: str = NotificationAdapter.SOUND_NOTIFICATION) -> bool:
+        """Play a custom notification sound."""
+        print(f"[DEBUG] Trying to play custom sound: {os.path.basename(self._custom_sound)}")
+
+        # Check if custom sound file exists
+        if not os.path.exists(self._custom_sound):
+            print(f"[DEBUG] Custom sound file not found: {self._custom_sound}")
+            # Fallback to Windows system sounds
+            if self._winsound_available:
+                try:
+                    # Use Windows MessageBeep for system sounds
+                    # MB_ICONASTERISK = 0x00000040
+                    self._winsound.MessageBeep(0x00000040)
+                    return True
+                except Exception as e:
+                    print(f"Windows MessageBeep failed: {e}")
+
+            # Final fallback to terminal bell
+            try:
+                print('\a', end='', flush=True)
+                return True
+            except:
+                return False
+
+        # Try to play the custom sound file using Windows media player
+        try:
+            print(f"[DEBUG] Playing custom sound with Windows default player...")
+            # Use Windows built-in media player to play the sound
+            subprocess.Popen(['powershell', '-c', f'(New-Object Media.SoundPlayer "{self._custom_sound}").PlaySync();'],
+                           stdout=subprocess.DEVNULL,
+                           stderr=subprocess.DEVNULL)
+            return True
+        except Exception as e:
+            print(f"[DEBUG] Failed to play custom sound: {e}")
+
+            # Fallback to Windows system sounds
+            if self._winsound_available:
+                try:
+                    self._winsound.MessageBeep(0x00000040)
+                    return True
+                except Exception as e2:
+                    print(f"Windows MessageBeep failed: {e2}")
+
+            # Final fallback to terminal bell
+            try:
+                print('\a', end='', flush=True)
+                return True
+            except:
+                return False
+
+
 class WindowsAdapter:
     """Main Windows adapter combining all sub-adapters."""
 
@@ -346,6 +428,7 @@ class WindowsAdapter:
         self.clipboard = WindowsClipboardAdapter(platform_info)
         self.system_tray = WindowsSystemTrayAdapter(platform_info)
         self.resources = WindowsResourceAdapter(platform_info)
+        self.notifications = WindowsNotificationAdapter(platform_info)
 
     def initialize(self):
         """Initialize all adapters."""

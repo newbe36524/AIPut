@@ -207,6 +207,27 @@ async def type_text():
             if success:
                 print("  ✓ 键盘模拟成功")
 
+                # 播放提示音（如果启用）
+                try:
+                    # 检查是否禁用了声音提示
+                    from config import get_config
+                    sound_enabled = get_config('SOUND_NOTIFICATIONS', 'true').lower() == 'true'
+
+                    if sound_enabled:
+                        print("  声音提示已启用，正在播放...")
+                        if hasattr(platform_adapters, 'notifications') and platform_adapters.notifications:
+                            success = platform_adapters.notifications.play_notification_sound()
+                            if success:
+                                print("  ✓ 提示音播放成功")
+                            else:
+                                print("  ⚠ 提示音播放失败")
+                        else:
+                            print("  ⚠ 通知适配器未初始化")
+                    else:
+                        print("  声音提示已禁用")
+                except Exception as e:
+                    print(f"  ✗ 播放提示音异常: {e}")
+
                 # 如果开启勇敢模式，发送 Ctrl+Enter
                 if auto_submit:
                     print("  正在发送 Ctrl+Enter...")

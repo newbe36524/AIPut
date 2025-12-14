@@ -2,12 +2,14 @@
 Factory for creating platform-specific adapters.
 """
 
+import os
+import subprocess
 from typing import Dict, Type, Optional, Any
 from platform_detection.detector import PlatformDetector, PlatformInfo
 from platform_detection.capabilities import PlatformCapabilities
 from platform_adapters.base import (
     KeyboardAdapter, ClipboardAdapter, SystemTrayAdapter,
-    ResourceAdapter
+    ResourceAdapter, NotificationAdapter
 )
 from platform_adapters.linux.adapter import LinuxAdapter
 from platform_adapters.windows.adapter import WindowsAdapter
@@ -23,6 +25,7 @@ class GenericAdapter:
         self.clipboard = GenericClipboardAdapter(platform_info)
         self.system_tray = GenericSystemTrayAdapter(platform_info)
         self.resources = GenericResourceAdapter(platform_info)
+        self.notifications = GenericNotificationAdapter(platform_info)
 
     def initialize(self):
         """Initialize adapters."""
@@ -178,6 +181,62 @@ class GenericResourceAdapter(ResourceAdapter):
             return Image.open(path)
         except:
             return path
+
+
+class GenericNotificationAdapter(NotificationAdapter):
+    """Generic notification adapter using custom sound file."""
+
+    def __init__(self, platform_info: PlatformInfo):
+        self.platform_info = platform_info
+
+        # Path to custom sound file
+        self._custom_sound = os.path.join(os.path.dirname(__file__), '..', 'assets', '029_Decline_09.wav')
+        # Convert to absolute path
+        self._custom_sound = os.path.abspath(self._custom_sound)
+
+    def show_notification(self, title: str, message: str, duration: int = 5000) -> bool:
+        """Show notification (not supported in generic adapter)."""
+        return False
+
+    def is_supported(self) -> bool:
+        """Check if notifications are supported."""
+        return False
+
+    def play_notification_sound(self, sound_type: str = NotificationAdapter.SOUND_NOTIFICATION) -> bool:
+        """Play a custom notification sound."""
+        print(f"[DEBUG] Trying to play custom sound: {os.path.basename(self._custom_sound)}")
+
+        # Check if custom sound file exists
+        if not os.path.exists(self._custom_sound):
+            print(f"[DEBUG] Custom sound file not found: {self._custom_sound}")
+            # Fallback to terminal bell
+            try:
+                print('\a', end='', flush=True)
+                return True
+            except:
+                return False
+
+        # Try to play with common players
+        players = ['aplay', 'paplay', 'afplay', 'mplayer', 'vlc']
+
+        for player in players:
+            try:
+                # Check if player is available
+                subprocess.run(['which', player], capture_output=True, check=True)
+                print(f"[DEBUG] Playing custom sound with {player}...")
+                subprocess.Popen([player, self._custom_sound],
+                               stdout=subprocess.DEVNULL,
+                               stderr=subprocess.DEVNULL)
+                return True
+            except:
+                continue
+
+        # Fallback to terminal bell
+        try:
+            print('\a', end='', flush=True)
+            return True
+        except:
+            return False
 
 
 class AdapterFactory:

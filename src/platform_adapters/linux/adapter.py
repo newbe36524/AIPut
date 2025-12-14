@@ -30,7 +30,7 @@ except (ImportError, Exception):
 
 from platform_adapters.base import (
     KeyboardAdapter, ClipboardAdapter, SystemTrayAdapter,
-    ResourceAdapter, MenuItem
+    ResourceAdapter, NotificationAdapter, MenuItem
 )
 from platform_detection.detector import PlatformInfo
 from platform_adapters.linux.wayland import WaylandKeyboardAdapter
@@ -334,6 +334,99 @@ class LinuxResourceAdapter(ResourceAdapter):
         return os.path.expanduser('~/.local/share/aiput')
 
 
+class LinuxNotificationAdapter(NotificationAdapter):
+    """Linux notification adapter using custom sound file."""
+
+    def __init__(self, platform_info: PlatformInfo):
+        self.platform_info = platform_info
+        self._paplay_available = self._check_command('paplay')
+        self._aplay_available = self._check_command('aplay')
+        self._canberra_available = self._check_command('canberra-gtk-play')
+        self._speaker_test_available = self._check_command('speaker-test')
+
+        # Use custom sound file
+        self._custom_sound = '/home/newbe36524/repos/newbe36524/qaa-airtype/src/assets/029_Decline_09.wav'
+
+    def _check_command(self, command: str) -> bool:
+        """Check if a command is available."""
+        try:
+            subprocess.run(['which', command], capture_output=True, check=True)
+            return True
+        except:
+            return False
+
+    def show_notification(self, title: str, message: str, duration: int = 5000) -> bool:
+        """Show a Linux notification (not implemented for now)."""
+        return False
+
+    def is_supported(self) -> bool:
+        """Check if notifications are supported."""
+        return True  # Linux supports sound notifications
+
+    def play_notification_sound(self, sound_type: str = NotificationAdapter.SOUND_NOTIFICATION) -> bool:
+        """Play a custom notification sound."""
+        print(f"[DEBUG] Audio tools - aplay: {self._aplay_available}, paplay: {self._paplay_available}")
+        print(f"[DEBUG] Trying to play custom sound: {os.path.basename(self._custom_sound)}")
+
+        # Check if custom sound file exists
+        if not os.path.exists(self._custom_sound):
+            print(f"[DEBUG] Custom sound file not found: {self._custom_sound}")
+            # Fallback to terminal bell
+            try:
+                print('\a', end='', flush=True)
+                return True
+            except:
+                return False
+
+        # Try to play the custom sound file with available players
+        # Priority 1: Use aplay (ALSA)
+        if self._aplay_available:
+            try:
+                print(f"[DEBUG] Playing custom sound with aplay...")
+                proc = subprocess.Popen(['aplay', self._custom_sound],
+                                       stdout=subprocess.DEVNULL,
+                                       stderr=subprocess.PIPE)
+                # Give it a moment to start
+                import time
+                time.sleep(0.1)
+                if proc.poll() is None:
+                    print("[DEBUG] ✓ aplay started successfully")
+                    # Let it run in background
+                    return True
+                else:
+                    _, stderr = proc.communicate()
+                    if stderr:
+                        print(f"[DEBUG] ✗ aplay error: {stderr.decode()}")
+            except Exception as e:
+                print(f"[DEBUG] aplay exception: {e}")
+
+        # Priority 2: Use paplay (PulseAudio)
+        if self._paplay_available:
+            try:
+                print(f"[DEBUG] Playing custom sound with paplay...")
+                proc = subprocess.Popen(['paplay', self._custom_sound],
+                                       stdout=subprocess.DEVNULL,
+                                       stderr=subprocess.PIPE)
+                time.sleep(0.1)
+                if proc.poll() is None:
+                    print("[DEBUG] ✓ paplay started successfully")
+                    return True
+                else:
+                    _, stderr = proc.communicate()
+                    if stderr:
+                        print(f"[DEBUG] ✗ paplay error: {stderr.decode()}")
+            except Exception as e:
+                print(f"[DEBUG] paplay exception: {e}")
+
+        # Fallback to terminal bell
+        print("[DEBUG] Using terminal bell fallback")
+        try:
+            print('\a', end='', flush=True)
+            return True
+        except:
+            return False
+
+
 class LinuxAdapter:
     """Main Linux adapter combining all sub-adapters."""
 
@@ -343,6 +436,7 @@ class LinuxAdapter:
         self.clipboard = LinuxClipboardAdapter(platform_info)
         self.system_tray = LinuxSystemTrayAdapter(platform_info)
         self.resources = LinuxResourceAdapter(platform_info)
+        self.notifications = LinuxNotificationAdapter(platform_info)
 
     def initialize(self):
         """Initialize all adapters."""

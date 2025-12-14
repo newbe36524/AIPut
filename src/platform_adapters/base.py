@@ -204,6 +204,9 @@ class ResourceAdapter(ABC):
 class NotificationAdapter(ABC):
     """Abstract interface for system notifications."""
 
+    # Sound notification types
+    SOUND_NOTIFICATION = "notification"
+
     @abstractmethod
     def show_notification(self, title: str, message: str, duration: int = 5000) -> bool:
         """Show a system notification.
@@ -224,5 +227,17 @@ class NotificationAdapter(ABC):
 
         Returns:
             bool: True if notifications are supported.
+        """
+        pass
+
+    @abstractmethod
+    def play_notification_sound(self, sound_type: str = SOUND_NOTIFICATION) -> bool:
+        """Play a system notification sound.
+
+        Args:
+            sound_type: Type of sound to play (e.g., SOUND_NOTIFICATION).
+
+        Returns:
+            bool: True if sound was played successfully, False otherwise.
         """
         pass
