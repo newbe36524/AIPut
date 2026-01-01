@@ -124,3 +124,47 @@ class X11KeyboardAdapter(KeyboardAdapter):
                 pass
 
         return False
+
+    async def keep_alive(self) -> bool:
+        """Send Scroll Lock twice using X11-compatible methods.
+
+        Returns:
+            bool: True if keep-alive was performed successfully, False otherwise.
+        """
+        # Try xdotool
+        if 'xdotool' in self._available_methods:
+            try:
+                subprocess.run(['xdotool', 'key', 'Scroll_Lock'],
+                             check=False, timeout=1)
+                await asyncio.sleep(0.1)
+                subprocess.run(['xdotool', 'key', 'Scroll_Lock'],
+                             check=False, timeout=1)
+                return True
+            except (subprocess.SubprocessError, subprocess.TimeoutExpired):
+                pass
+
+        # Try xte
+        if 'xte' in self._available_methods:
+            try:
+                subprocess.run(['xte', 'key Scroll_Lock'],
+                             check=False, timeout=1)
+                await asyncio.sleep(0.1)
+                subprocess.run(['xte', 'key Scroll_Lock'],
+                             check=False, timeout=1)
+                return True
+            except (subprocess.SubprocessError, subprocess.TimeoutExpired):
+                pass
+
+        # Try xvkbd
+        if 'xvkbd' in self._available_methods:
+            try:
+                subprocess.run(['xvkbd', '-text', '\\[Scroll_Lock]'],
+                             check=False, timeout=1)
+                await asyncio.sleep(0.1)
+                subprocess.run(['xvkbd', '-text', '\\[Scroll_Lock]'],
+                             check=False, timeout=1)
+                return True
+            except (subprocess.SubprocessError, subprocess.TimeoutExpired):
+                pass
+
+        return False

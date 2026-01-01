@@ -119,3 +119,49 @@ class WaylandKeyboardAdapter(KeyboardAdapter):
             except (subprocess.SubprocessError, subprocess.TimeoutExpired):
                 pass
         return False
+
+    async def keep_alive(self) -> bool:
+        """Send Scroll Lock twice using Wayland-compatible methods.
+
+        Returns:
+            bool: True if keep-alive was performed successfully, False otherwise.
+        """
+        # Try xdotool on KDE Wayland (via Xwayland)
+        if 'xdotool (KDE Wayland)' in self._available_methods:
+            try:
+                subprocess.run(['xdotool', 'key', 'Scroll_Lock'],
+                             check=False, timeout=1)
+                await asyncio.sleep(0.1)
+                subprocess.run(['xdotool', 'key', 'Scroll_Lock'],
+                             check=False, timeout=1)
+                return True
+            except (subprocess.SubprocessError, subprocess.TimeoutExpired):
+                pass
+
+        # Try wtype (native Wayland)
+        if 'wtype' in self._available_methods:
+            try:
+                # wtype -P Scroll_Lock (press and release)
+                subprocess.run(['wtype', '-P', 'Scroll_Lock'],
+                             check=False, timeout=1)
+                await asyncio.sleep(0.1)
+                subprocess.run(['wtype', '-P', 'Scroll_Lock'],
+                             check=False, timeout=1)
+                return True
+            except (subprocess.SubprocessError, subprocess.TimeoutExpired):
+                pass
+
+        # Try ydotool
+        if 'ydotool' in self._available_methods:
+            try:
+                # ydotool key code for Scroll Lock is 70
+                subprocess.run(['ydotool', 'key', '70:1', '70:0'],
+                             check=False, timeout=1)
+                await asyncio.sleep(0.1)
+                subprocess.run(['ydotool', 'key', '70:1', '70:0'],
+                             check=False, timeout=1)
+                return True
+            except (subprocess.SubprocessError, subprocess.TimeoutExpired):
+                pass
+
+        return False
