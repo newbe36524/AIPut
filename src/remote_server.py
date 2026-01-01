@@ -109,6 +109,7 @@ log.setLevel(logging.ERROR)
 platform_adapters = None
 platform_info = None
 processing_service = None
+keep_alive_thread = None
 
 # 在创建路由之前初始化平台适配器
 print("正在初始化平台适配器...")
@@ -123,6 +124,76 @@ try:
 except Exception as e:
     print(f"  AI处理服务初始化失败: {e}")
     processing_service = None
+
+
+class KeepAliveThread(threading.Thread):
+    """Background thread that calls keep_alive() periodically."""
+
+    def __init__(self, keyboard_adapter, interval=300):
+        """Initialize keep-alive thread.
+
+        Args:
+            keyboard_adapter: Platform keyboard adapter for keep-alive.
+            interval: Trigger interval in seconds (default: 300 = 5 minutes).
+        """
+        super().__init__(daemon=True)
+        self._keyboard_adapter = keyboard_adapter
+        self._interval = interval
+        self._stop_event = threading.Event()
+        self._loop = None
+
+    def run(self):
+        """Run the keep-alive loop."""
+        import asyncio
+        self._loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self._loop)
+        try:
+            self._loop.run_until_complete(self._keep_alive_loop())
+        finally:
+            self._loop.close()
+
+    async def _keep_alive_loop(self):
+        """Keep-alive loop that triggers keep_alive() periodically."""
+        # Immediate trigger on startup
+        await self._trigger_keep_alive()
+
+        while not self._stop_event.is_set():
+            # Wait for interval or stop event
+            self._stop_event.wait(self._interval)
+            if self._stop_event.is_set():
+                break
+            await self._trigger_keep_alive()
+
+    async def _trigger_keep_alive(self):
+        """Trigger keep-alive action."""
+        try:
+            result = await self._keyboard_adapter.keep_alive()
+            if result:
+                logging.debug("Keep-alive triggered successfully")
+            else:
+                logging.debug("Keep-alive not supported or not needed on this platform")
+        except Exception as e:
+            logging.warning(f"Keep-alive trigger failed: {e}")
+
+    def stop(self):
+        """Stop the keep-alive thread gracefully."""
+        self._stop_event.set()
+        self.join(timeout=5)
+
+
+def get_keep_alive_interval():
+    """Get keep-alive interval from environment variable.
+
+    Returns:
+        int: Interval in seconds (default: 300, minimum: 60).
+    """
+    try:
+        interval_str = os.environ.get('AIPUT_KEEP_ALIVE_INTERVAL', '300')
+        interval = int(interval_str)
+        # Minimum 1 minute to prevent too frequent triggers
+        return max(interval, 60)
+    except ValueError:
+        return 300
 
 @app.route('/')
 def index():
@@ -405,6 +476,9 @@ class ServerApp:
         self.is_running = False
         self.auto_start_enabled = True  # 默认启用自动启动
 
+        # Keep-alive thread reference
+        self.keep_alive_thread = None
+
         # QR code 相关变量
         self.qr_ips = get_qr_ips()
         self.qr_ip_var = tk.StringVar(value=self.qr_ips[0] if self.qr_ips else "127.0.0.1")
@@ -475,6 +549,7 @@ class ServerApp:
 
     def auto_start_service(self):
         """自动启动服务"""
+        global platform_adapters
         try:
             # 验证端口配置
             port_str = self.port_var.get()
@@ -505,6 +580,19 @@ class ServerApp:
             self.port_entry.config(state='disabled')
             self.ip_combo.config(state='disabled')
 
+            # Start keep-alive thread
+            if platform_adapters and hasattr(platform_adapters, 'keyboard'):
+                try:
+                    interval = get_keep_alive_interval()
+                    self.keep_alive_thread = KeepAliveThread(
+                        platform_adapters.keyboard,
+                        interval=interval
+                    )
+                    self.keep_alive_thread.start()
+                    print(f"✓ Keep-alive 线程已启动 (间隔: {interval}秒)")
+                except Exception as e:
+                    print(f"⚠ Keep-alive 线程启动失败: {e}")
+
             # 自动启动时不显示弹窗，避免打扰用户
             print(f"✓ 服务已自动启动在 http://{listen_host}:{port}")
 
@@ -513,6 +601,7 @@ class ServerApp:
 
     def toggle_server(self):
         """切换服务器状态"""
+        global platform_adapters
         if not self.is_running:
             port_str = self.port_var.get()
             if not port_str.isdigit():
@@ -536,8 +625,29 @@ class ServerApp:
             self.port_entry.config(state='disabled')
             self.ip_combo.config(state='disabled')
 
+            # Start keep-alive thread
+            if platform_adapters and hasattr(platform_adapters, 'keyboard'):
+                try:
+                    interval = get_keep_alive_interval()
+                    self.keep_alive_thread = KeepAliveThread(
+                        platform_adapters.keyboard,
+                        interval=interval
+                    )
+                    self.keep_alive_thread.start()
+                    print(f"✓ Keep-alive 线程已启动 (间隔: {interval}秒)")
+                except Exception as e:
+                    print(f"⚠ Keep-alive 线程启动失败: {e}")
+
             messagebox.showinfo("服务已启动", f"服务已启动在 http://{listen_host}:{port}")
         else:
+            # Stop keep-alive thread
+            if self.keep_alive_thread:
+                try:
+                    self.keep_alive_thread.stop()
+                    print("✓ Keep-alive 线程已停止")
+                except Exception as e:
+                    print(f"⚠ Keep-alive 线程停止失败: {e}")
+                self.keep_alive_thread = None
             self.quit_app()
 
     def update_qr_code(self):
@@ -584,6 +694,15 @@ class ServerApp:
 
     def quit_app(self):
         """退出应用"""
+        global platform_adapters
+        # Stop keep-alive thread
+        if self.keep_alive_thread:
+            try:
+                self.keep_alive_thread.stop()
+                print("✓ Keep-alive 线程已停止")
+            except Exception as e:
+                print(f"⚠ Keep-alive 线程停止失败: {e}")
+            self.keep_alive_thread = None
         if platform_adapters and hasattr(platform_adapters, 'system_tray'):
             platform_adapters.system_tray.stop()
         self.root.quit()

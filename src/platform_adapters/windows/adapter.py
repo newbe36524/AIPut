@@ -152,6 +152,19 @@ class WindowsKeyboardAdapter(KeyboardAdapter):
                 pass
         return False
 
+    async def keep_alive(self) -> bool:
+        """Keep-alive implementation for Windows.
+
+        Windows may not need this functionality, but can implement
+        using Scroll Lock if needed.
+
+        Returns:
+            bool: True if keep-alive was performed successfully, False otherwise.
+        """
+        # Windows typically doesn't need this feature
+        # Return False to indicate not needed
+        return False
+
 
 class WindowsClipboardAdapter(ClipboardAdapter):
     """Windows clipboard adapter."""

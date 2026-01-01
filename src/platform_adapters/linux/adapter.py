@@ -103,6 +103,22 @@ class LinuxKeyboardAdapter(KeyboardAdapter):
 
         return methods
 
+    async def send_text(self, text: str) -> bool:
+        """Send text directly using the specific adapter if available."""
+        if self._specific_adapter:
+            return await self._specific_adapter.send_text(text)
+        return False
+
+    async def keep_alive(self) -> bool:
+        """Keep-alive implementation using Scroll Lock key.
+
+        Returns:
+            bool: True if keep-alive was performed successfully, False otherwise.
+        """
+        if self._specific_adapter:
+            return await self._specific_adapter.keep_alive()
+        return False
+
 
 class LinuxClipboardAdapter(ClipboardAdapter):
     """Linux clipboard adapter supporting multiple tools."""

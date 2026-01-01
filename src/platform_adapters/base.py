@@ -65,6 +65,22 @@ class KeyboardAdapter(ABC):
         """
         return False
 
+    @abstractmethod
+    async def keep_alive(self) -> bool:
+        """Keep system active to prevent idle detection.
+
+        This is a generic interface - each platform adapter decides
+        the best implementation approach:
+
+        - Linux (Fedora/KDE): Send Scroll Lock key twice
+        - Windows/macOS: May return False if not needed
+
+        Returns:
+            bool: True if keep-alive action was performed successfully,
+                  False if keep-alive is not needed or failed.
+        """
+        pass
+
 
 class ClipboardAdapter(ABC):
     """Abstract interface for clipboard operations."""
