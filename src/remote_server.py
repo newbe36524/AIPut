@@ -6,21 +6,28 @@
 import os
 import sys
 
+# Windows 控制台编码修复 - 设置为 UTF-8
+if sys.platform == 'win32':
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 # 设置 DISPLAY 环境变量（如果需要）
 if os.environ.get('WAYLAND_DISPLAY') and not os.environ.get('DISPLAY'):
     # 在 Wayland 环境下尝试使用 Xwayland
     os.environ['DISPLAY'] = ':0'
 
-# 修复 sudo 环境下的 X11 授权问题
+# 修复 sudo 环境下的 X11 授权问题（仅 Linux/Unix）
 # 如果在 sudo 环境下运行，需要保留原用户的 XAUTHORITY
-if os.geteuid() == 0:  # 检测是否为 root 用户
-    # 尝试获取原始用户
-    sudo_user = os.environ.get('SUDO_USER')
-    if sudo_user and not os.environ.get('XAUTHORITY'):
-        # 设置 XAUTHORITY 指向原用户的授权文件
-        xauth_path = f'/home/{sudo_user}/.Xauthority'
-        if os.path.exists(xauth_path):
-            os.environ['XAUTHORITY'] = xauth_path
+if hasattr(os, 'geteuid'):  # 检测是否为 root 用户（仅 Unix 系统）
+    if os.geteuid() == 0:
+        # 尝试获取原始用户
+        sudo_user = os.environ.get('SUDO_USER')
+        if sudo_user and not os.environ.get('XAUTHORITY'):
+            # 设置 XAUTHORITY 指向原用户的授权文件
+            xauth_path = f'/home/{sudo_user}/.Xauthority'
+            if os.path.exists(xauth_path):
+                os.environ['XAUTHORITY'] = xauth_path
 
 # 修复 pyautogui 的导入问题
 # 在 Wayland 环境下不强制设置 DISPLAY，让适配器自行处理
