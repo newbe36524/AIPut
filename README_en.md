@@ -174,6 +174,7 @@ Once enabled, text will be automatically sent after input to the computer, no ad
 
 | Operating System | Desktop Environment | Display Protocol | Test Status | Notes |
 |-----------------|-------------------|------------------|-------------|-------|
+| **Windows** | - | - | ✅ Tested | Fully supported (10/11) |
 | Fedora | KDE | Wayland | ✅ Tested | Fully supported |
 | Fedora | GNOME | Wayland | ⚠️ Untested | Expected to work |
 | Fedora | Other DE | X11 | ⚠️ Untested | Expected to work |
@@ -182,7 +183,6 @@ Once enabled, text will be automatically sent after input to the computer, no ad
 | Debian | Any DE | X11 | ⚠️ Untested | Expected to work |
 | Other Linux Distros | - | - | ❓ Unknown | Testing needed |
 | macOS | - | - | ❌ Not Supported | Needs adaptation |
-| Windows | - | - | ❌ Not Supported | Needs adaptation |
 
 > 💡 **Tip**: If you successfully run it on other systems, feel free to submit a PR to update this table.
 
@@ -191,7 +191,7 @@ Once enabled, text will be automatically sent after input to the computer, no ad
 ### Requirements
 
 - Python 3.8+
-- Linux OS (supports X11/Wayland)
+- Windows 10/11 or Linux OS (supports X11/Wayland)
 - Smartphone and computer on the same local network
 - **Recommended**: Install Doubao Input Method for optimal Chinese voice recognition experience
 
@@ -230,6 +230,45 @@ The scripts will automatically:
 - Install required Python packages
 - Detect runtime environment (Wayland/X11, KDE, etc.)
 - Run cross-platform version (`src/remote_server.py`)
+
+</details>
+
+<details>
+<summary>Windows System</summary>
+
+```cmd
+REM 1. Create virtual environment
+python -m venv aiput-env
+
+REM 2. Activate virtual environment
+aiput-env\Scripts\activate
+
+REM 3. Install dependencies
+pip install flask[async] pyautogui pyperclip qrcode pillow pystray aiohttp python-dotenv
+
+REM 4. Run the program
+python src\remote_server.py
+```
+
+Or in PowerShell:
+
+```powershell
+# 1. Create virtual environment
+python -m venv aiput-env
+
+# 2. Activate virtual environment
+.\aiput-env\Scripts\Activate.ps1
+
+# 3. Install dependencies
+pip install flask[async] pyautogui pyperclip qrcode pillow pystray aiohttp python-dotenv
+
+# 4. Run the program
+python src\remote_server.py
+```
+
+**One-click Launch Script:**
+
+After installing dependencies, simply double-click `run-auto.bat` to start the program.
 
 </details>
 
@@ -327,8 +366,8 @@ After successful execution, you will see:
 3. Server IP address and port
 
 > 💡 **Tips**:
-> - Using the automated scripts on Fedora is recommended for one-click installation and configuration
-> - `run-auto.sh` will automatically detect your environment (Wayland/X11, desktop environment, etc.)
+> - **Windows**: Double-click `run-auto.bat` to start
+> - **Linux**: Use `./run-auto.sh`, which will automatically detect your environment (Wayland/X11, desktop environment, etc.)
 > - The main program is located at `src/remote_server.py`, which is a cross-platform version
 
 ## AI Function Configuration
@@ -400,8 +439,8 @@ source ~/.bashrc
 ## Usage
 
 1. **Start Program**:
-   - Fedora system: `./run-auto.sh`
-   - Other systems: Activate virtual environment and run `python src/remote_server.py`
+   - **Windows**: Double-click `run-auto.bat` or run `python src\remote_server.py`
+   - **Linux**: `./run-auto.sh` or activate virtual environment and run `python src/remote_server.py`
 
 2. **Configure Mobile Input Method (Important)**:
    - **Strongly recommend installing Doubao Input Method**

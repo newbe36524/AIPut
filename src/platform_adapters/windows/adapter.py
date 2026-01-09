@@ -73,30 +73,36 @@ class WindowsKeyboardAdapter(KeyboardAdapter):
             pass
 
     async def send_paste_command(self) -> bool:
-        """Send paste command (Shift+Insert on Windows)."""
-        # Try pyautogui first
+        """Send paste command (Ctrl+V on Windows, with Shift+Insert as fallback)."""
+        # Try pyautogui first with Ctrl+V (more common on Windows)
         if 'pyautogui' in self._methods:
             try:
-                pyautogui.hotkey('shift', 'insert')
+                pyautogui.hotkey('ctrl', 'v')
                 return True
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"[DEBUG] pyautogui Ctrl+V failed: {e}")
+                # Try Shift+Insert as fallback
+                try:
+                    pyautogui.hotkey('shift', 'insert')
+                    return True
+                except Exception:
+                    pass
 
-        # Try win32api
+        # Try win32api with Ctrl+V
         if 'win32api' in self._methods:
             try:
                 import win32api
                 import win32con
                 import win32gui
 
-                # Press Shift
-                win32api.keybd_event(win32con.VK_SHIFT, 0, 0, 0)
-                # Press Insert
-                win32api.keybd_event(win32con.VK_INSERT, 0, 0, 0)
-                # Release Insert
-                win32api.keybd_event(win32con.VK_INSERT, 0, win32con.KEYEVENTF_KEYUP, 0)
-                # Release Shift
-                win32api.keybd_event(win32con.VK_SHIFT, 0, win32con.KEYEVENTF_KEYUP, 0)
+                # Press Ctrl
+                win32api.keybd_event(win32con.VK_CONTROL, 0, 0, 0)
+                # Press V
+                win32api.keybd_event(win32con.VK_V, 0, 0, 0)
+                # Release V
+                win32api.keybd_event(win32con.VK_V, 0, win32con.KEYEVENTF_KEYUP, 0)
+                # Release Ctrl
+                win32api.keybd_event(win32con.VK_CONTROL, 0, win32con.KEYEVENTF_KEYUP, 0)
                 return True
             except Exception:
                 pass
