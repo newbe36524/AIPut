@@ -33,6 +33,11 @@
     <!-- Main content -->
     <div class="main-content">
         <div class="input-container">
+            <!-- Resend area for quick resend of last message -->
+            <div class="resend-area hidden" id="resendArea">
+                <span class="resend-preview" id="resendPreview"></span>
+                <button class="resend-button" onclick="handleResend()">重发</button>
+            </div>
             <textarea id="textInput" placeholder="输入文字..." autofocus autocomplete="off" rows="1"></textarea>
             <!-- Loading overlay -->
             <div class="loading-overlay" id="loadingOverlay">

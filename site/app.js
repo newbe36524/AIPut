@@ -11,11 +11,16 @@ const promptSelect = document.getElementById('promptSelect');
 const loadingOverlay = document.getElementById('loadingOverlay');
 const loadingText = document.getElementById('loadingText');
 const sendBtn = document.getElementById('sendBtn');
+const resendArea = document.getElementById('resendArea');
+const resendPreview = document.getElementById('resendPreview');
 const MAX_HISTORY = 10;
 
 // Store loaded prompts
 let availablePrompts = [];
 let currentPrompt = 'normal';
+
+// Store last sent content for quick resend
+let lastSentContent = null;
 
 // Touch detection for swipe gestures
 let touchStartY = 0;
@@ -76,6 +81,48 @@ function hideLoading() {
     input.focus();
 }
 
+// Resend area functions
+/**
+ * Load last sent content from localStorage
+ */
+function loadLastSentContent() {
+    const stored = localStorage.getItem('lastSentContent');
+    lastSentContent = stored ? stored : null;
+}
+
+/**
+ * Update last sent content and save to localStorage
+ * @param {string} text - The text to save as last sent
+ */
+function updateLastSentContent(text) {
+    lastSentContent = text;
+    localStorage.setItem('lastSentContent', text);
+    renderResendArea();
+}
+
+/**
+ * Render resend area based on last sent content state
+ * Shows/hides the resend area and updates preview text
+ */
+function renderResendArea() {
+    if (lastSentContent) {
+        resendArea.classList.remove('hidden');
+        resendPreview.textContent = lastSentContent;
+    } else {
+        resendArea.classList.add('hidden');
+        resendPreview.textContent = '';
+    }
+}
+
+/**
+ * Handle resend button click
+ * Sends the last sent content again
+ */
+function handleResend() {
+    if (!lastSentContent) return;
+    sendRequest(lastSentContent);
+}
+
 // Load prompts configuration
 async function loadPrompts() {
     try {
@@ -117,6 +164,10 @@ window.onload = function() {
         renderHistory();
         input.focus();
     });
+
+    // Load last sent content for resend area
+    loadLastSentContent();
+    renderResendArea();
 
     // Load brave mode setting from localStorage (default to true)
     const storedBraveMode = localStorage.getItem('braveMode');
@@ -371,6 +422,9 @@ function sendRequest(text) {
             }, 2000);
         }
     });
+
+    // Update last sent content after every send attempt (success or failure)
+    updateLastSentContent(text);
 }
 
 // Helper function to send plain request without AI processing
@@ -410,6 +464,9 @@ function sendPlainRequest(text, braveMode) {
             input.focus();
         }, 2000);
     });
+
+    // Update last sent content after every send attempt (success or failure)
+    updateLastSentContent(text);
 }
 
 // History functions

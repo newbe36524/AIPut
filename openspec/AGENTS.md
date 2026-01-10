@@ -169,6 +169,17 @@ New request?
 - [Bullet list of changes]
 - [Mark breaking changes with **BREAKING**]
 
+## UI Design Changes (if applicable)
+- Include ASCII mockups for new/modified interfaces
+- Add Mermaid sequence diagrams for user interaction flows
+- Reference: PROPOSAL_DESIGN_GUIDELINES.md for format requirements
+
+## Code Flow Changes (if applicable)
+- Include Mermaid flowcharts for data flow
+- Add sequence diagrams for API interactions
+- Include architecture diagrams for system changes
+- Reference: PROPOSAL_DESIGN_GUIDELINES.md for format requirements
+
 ## Impact
 - Affected specs: [list capabilities]
 - Affected code: [key files/systems]
@@ -210,6 +221,10 @@ Create `design.md` if any of the following apply; otherwise omit it:
 - New external dependency or significant data model changes
 - Security, performance, or migration complexity
 - Ambiguity that benefits from technical decisions before coding
+- UI/UX changes requiring visual mockups and interaction flows
+- Code flow changes requiring diagrams (sequence, flowchart, architecture)
+
+**Note**: For design guidelines including UI mockups and code flow diagrams, see [PROPOSAL_DESIGN_GUIDELINES.md](PROPOSAL_DESIGN_GUIDELINES.md)
 
 Minimal `design.md` skeleton:
 ```markdown
@@ -223,6 +238,22 @@ Minimal `design.md` skeleton:
 ## Decisions
 - Decision: [What and why]
 - Alternatives considered: [Options + rationale]
+
+## UI/UX Design
+[Include if UI changes are involved]
+- ASCII mockups of new/modified interfaces
+- User interaction flows (Mermaid sequence diagrams)
+- State transitions and error handling UI
+- Mobile/responsive considerations
+- See PROPOSAL_DESIGN_GUIDELINES.md for detailed requirements
+
+## Technical Design
+[Include if code flow changes are involved]
+- Architecture diagrams (Mermaid)
+- Data flow diagrams (Mermaid flowcharts)
+- API interaction sequences (Mermaid sequence diagrams)
+- Component relationships (Mermaid graphs)
+- See PROPOSAL_DESIGN_GUIDELINES.md for detailed requirements
 
 ## Risks / Trade-offs
 - [Risk] → Mitigation
@@ -374,6 +405,12 @@ notifications/spec.md
 ```
 
 ## Best Practices
+
+### Design Visualization
+- **UI Changes**: Always include ASCII mockups and interaction flows (see [PROPOSAL_DESIGN_GUIDELINES.md](PROPOSAL_DESIGN_GUIDELINES.md))
+- **Code Changes**: Include Mermaid diagrams for data flows, sequences, and architecture
+- **Error Paths**: Document error handling flows in both UI and code diagrams
+- **State Transitions**: Show before/after states clearly in diagrams
 
 ### Simplicity First
 - Default to <100 lines of new code
