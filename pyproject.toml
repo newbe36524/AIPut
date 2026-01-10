@@ -20,12 +20,15 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows",
     "Environment :: X11 Applications",
     "Environment :: Wayland",
+    "Environment :: Win32 (MS Windows)",
 ]
 
 dependencies = [
     "flask>=3.0.0",
+    "asgiref>=3.6.0",
     "pyautogui>=0.9.54",
     "pyperclip>=1.8.2",
     "qrcode>=7.4.2",
