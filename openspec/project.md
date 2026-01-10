@@ -1,177 +1,171 @@
 # Project Context
 
 ## Purpose
+AIPut 是一个通过手机端语音输入实现电脑端远程输入的 AI 增强工具。该项目允许用户使用手机浏览器访问本地 Web 界面，通过语音识别（推荐使用豆包输入法）将语音转换为文字，并可选地通过 AI（智谱AI）进行智能处理后，自动输入到电脑当前焦点的应用程序中。
 
-AIPut is a wireless voice input tool that enables users to input text into their computers using their smartphone's voice input capabilities. It bridges the gap between superior mobile voice recognition and desktop applications by creating a local web interface that receives voice input from mobile devices and transfers it to the desktop via clipboard and keyboard automation.
-
-Key goals:
-- Leverage high-quality mobile voice recognition (e.g., mobile phone's built-in voice input)
-- Provide seamless wireless text input to desktop applications
-- Support cross-platform desktop environments (X11/Wayland)
-- Maintain simplicity and reliability with minimal dependencies
+核心功能包括：
+- 无线远程输入：手机作为无线键盘，文字自动输入到电脑
+- AI 智能处理：支持任务整理、口语书面化、即时翻译等提示词模式
+- 勇敢模式：自动发送，实现真正的"说完即发送"
+- 跨平台支持：Linux（X11/Wayland）、macOS、Windows
+- 二维码快速连接：自动生成二维码供手机扫描访问
 
 ## Tech Stack
+- **Python 3.8+** - 主要开发语言
+- **Flask 3.0+** - Web 服务器框架，提供移动端界面
+- **HTML5/CSS3/JavaScript** - 移动端 Web 界面
+- **PyAutoGUI 0.9.54+** - 跨平台键盘/鼠标模拟
+- **Pyperclip 1.8.2+** - 剪贴板操作
+- **QRCode 7.4.2+** - 二维码生成
+- **Pillow 10.0.0+** - 图像处理
+- **PyStray 0.19.0+** - 系统托盘集成
+- **AIOHTTP 3.8.0+** - 异步 HTTP 客户端
+- **Python-dotenv 1.0.0+** - 环境变量管理
+- **智谱AI (GLM-4.6)** - AI 处理服务（可选）
 
-- **Python 3.8+** - Primary programming language
-- **Flask** - Web framework for HTTP server
-- **Tkinter** - GUI framework for desktop application
-- **HTML/CSS/JavaScript** - Mobile web interface
-- **pyautogui/pyperclip** - Clipboard and keyboard automation
-- **qrcode/pillow** - QR code generation
-- **pystray** - System tray integration
-
-## Project Structure
-
-```
-qaa-airtype/
-├── src/                          # Source code directory
-│   ├── remote_server.py         # Main application entry point
-│   ├── platform_detection/      # Platform detection module
-│   │   ├── detector.py          # Detects OS and display environment
-│   │   └── capabilities.py      # Defines platform capabilities
-│   ├── platform_adapters/       # Platform-specific input adapters
-│   │   ├── base.py              # Base adapter interface
-│   │   ├── factory.py           # Adapter factory
-│   │   ├── linux/               # Linux adapters
-│   │   │   ├── adapter.py       # Linux main adapter
-│   │   │   ├── x11.py           # X11 specific implementation
-│   │   │   └── wayland.py       # Wayland specific implementation
-│   │   ├── windows/             # Windows adapters (placeholder)
-│   │   └── macos/               # macOS adapters (placeholder)
-│   └── generate_icon.py         # Icon generation utility
-├── site/                        # Mobile web interface
-│   ├── index.html               # Main HTML page
-│   ├── app.js                   # Client-side JavaScript
-│   └── style.css                # Mobile-optimized CSS
-├── openspec/                    # OpenSpec documentation
-├── scripts/                     # Installation and setup scripts
-├── aiput-env/                   # Python virtual environment
-└── pyproject.toml               # Python project configuration
-```
-
-## Current Features
-
-### Core Functionality
-- **Remote Text Input**: Send text from mobile device to desktop
-- **Wireless Connection**: Local WiFi/LAN communication without internet dependency
-- **Cross-Platform Support**: Currently supports Linux with X11/Wayland
-- **Mobile Web Interface**: Responsive design optimized for mobile browsers
-- **Gesture Support**: Swipe up to send, swipe down to clear
-- **Input History**: Maintains last 10 inputs in browser localStorage
-- **System Tray Integration**: Minimize to system tray on desktop
-
-### Platform Abstraction
-- **Modular Architecture**: Platform-specific adapters for different OS environments
-- **Automatic Detection**: Detects display server (X11/Wayland) and available tools
-- **Fallback Chain**: Multiple automation tools with graceful degradation
-- **Tool Detection**: Checks for availability of system tools (xdotool, wtype, ydotool, etc.)
-
-### User Experience
-- **QR Code Setup**: Display QR code for easy mobile connection
-- **Auto IP Detection**: Automatically detects and displays local IP address
-- **Visual Feedback**: Status indicators for sent/failed operations
-- **Keyboard Shortcuts**: Enter to send, Shift+Enter for new line
-- **Focus Management**: Automatic focus management for better typing experience
+### 平台特定依赖
+- **Linux X11**: xdotool, xte, xvkbd（键盘模拟）、xclip/xsel（剪贴板）
+- **Linux Wayland**: wtype, ydotool（键盘模拟）、wl-clipboard（剪贴板）
+- **macOS**: osascript, afplay（系统操作）
+- **Windows**: winsound（系统通知音）
 
 ## Project Conventions
 
 ### Code Style
-
-- **PEP 8** compliant Python code
-- **CamelCase** for class names (e.g., `RemoteServerGUI`)
-- **snake_case** for functions and variables
-- **Constants in UPPER_CASE** for configuration values
-- **Minimal dependencies** - prefer built-in Python modules
-- **Modular architecture** with platform-specific adapters
+- **Python 遵循 PEP 8** 规范
+- 使用类型提示（Type Hints）提高代码可读性
+- 文件编码使用 UTF-8
+- 缩进使用 4 个空格
+- 函数和类使用描述性命名，避免缩写
+- 文档字符串使用中文（项目主要面向中文用户）
 
 ### Architecture Patterns
+- **平台抽象层 (Platform Abstraction)**: 使用工厂模式和适配器模式实现跨平台支持
+  - `platform_detection/` - 自动检测操作系统和显示服务器（X11/Wayland）
+  - `platform_adapters/` - 平台特定适配器（Linux、macOS、Windows）
+  - `platform_adapters/base.py` - 基础适配器接口定义
+- **AI 处理器抽象**:
+  - `ai/processor.py` - AI 处理器基类
+  - `ai/zai_processor.py` - 智谱AI处理器实现
+  - `ai/anthropic_processor.py` - Anthropic AI处理器实现
+- **配置管理**:
+  - 使用 `.env` 文件管理环境变量
+  - `python-dotenv` 自动加载配置
+  - 优先使用环境变量，其次使用默认值
 
-- **Modular adapter architecture** - Platform adapters for different OS environments
-- **Thread-based concurrency** - Separate threads for Flask server and Tkinter GUI
-- **Platform abstraction** - Unified interface with platform-specific implementations
-- **Fallback chain pattern** - Multiple automation tools with graceful degradation
-- **Environment detection** - Auto-detect X11/Wayland display server and available tools
-- **Resource cleanup** - Proper cleanup on application exit
-- **Factory pattern** - For creating appropriate platform adapters
+### 目录结构
+```
+src/
+├── ai/                      # AI 处理模块
+│   ├── processor.py         # AI 处理器基类
+│   ├── zai_processor.py     # 智谱AI处理器
+│   ├── anthropic_processor.py  # Anthropic处理器
+│   └── processing_service.py  # 处理服务
+├── platform_adapters/       # 平台适配器
+│   ├── base.py             # 基础接口
+│   ├── factory.py          # 适配器工厂
+│   ├── linux/              # Linux 适配器
+│   │   ├── adapter.py      # Linux 主适配器
+│   │   ├── x11.py          # X11 实现
+│   │   └── wayland.py      # Wayland 实现
+│   ├── macos/              # macOS 适配器
+│   │   └── adapter.py
+│   └── windows/            # Windows 适配器
+│       └── adapter.py
+├── platform_detection/      # 平台检测
+│   ├── detector.py         # 平台检测器
+│   └── capabilities.py     # 能力检测
+├── assets/                  # 静态资源
+├── config.py               # 配置加载
+├── remote_server.py        # 主服务器程序
+└── generate_icon.py        # 图标生成工具
+site/                       # 移动端 Web 界面
+├── index.html              # 主页面
+├── app.js                  # 前端逻辑
+├── style.css               # 样式文件
+└── config/                 # 提示词配置
+```
 
 ### Testing Strategy
-
-- **Manual testing** - Test across different platforms and applications
-- **Integration testing** - Verify mobile-to-desktop workflow
-- **Error scenario testing** - Test failure modes and fallbacks
-- **No automated test suite** - Pragmatic approach for single-file utility
+- 当前项目主要通过手动测试验证功能
+- 使用 `test_ai.py` 进行 AI 处理功能测试
+- 平台特定功能在各平台上进行手动验证
 
 ### Git Workflow
-
-- **Feature branches** - Use descriptive feature branch names (e.g., `feature/voice-input-enhancement`)
-- **Squash commits** - Clean commit history with meaningful messages
-- **Chinese commit messages** - Primary language for commit descriptions
-- **Version tags** - Tag releases for easy reference
+- **主分支**: `main`
+- **功能分支**: 使用描述性名称，如 `feature/keep-alive-keyboard-activity`
+- **提交信息规范**:
+  - `feat:` - 新功能
+  - `fix:` - Bug 修复
+  - `docs:` - 文档更新
+  - `refactor:` - 代码重构
+  - `chore:` - 杂项（依赖更新等）
+- **OpenSpec 工作流**:
+  1. 创建变更提案：`openspec/changes/<change-id>/`
+  2. 实现变更
+  3. 归档变更：移动到 `openspec/changes/archive/YYYY-MM-DD-<change-id>/`
 
 ## Domain Context
 
-AIPut operates in the accessibility and productivity domain, specifically:
+### 核心概念
+- **提示词 (Prompt)**: AI 处理的预定义模板，如"任务整理"、"口语书面化"、"翻译为英文"
+- **勇敢模式 (Brave Mode)**: 自动发送模式，文本输入后自动按下 Ctrl+Enter 发送
+- **保持活动 (Keep-Alive)**: 防止系统休眠的机制，通过模拟键盘活动实现
+- **平台检测**: 自动识别操作系统和显示服务器（X11/Wayland）
 
-- **Voice input accessibility** - Helps users who prefer voice typing
-- **Cross-platform compatibility** - Works across Linux desktop environments
-- **Local network communication** - No internet dependency, operates over WiFi/LAN
-- **Input method bridging** - Bridges mobile IME capabilities to desktop
+### 用户交互流程
+1. 用户在电脑上启动 `remote_server.py`
+2. 程序生成二维码，用户用手机浏览器扫描
+3. 用户在手机上选择提示词模式（可选）
+4. 用户使用豆包输入法进行语音输入
+5. 识别的文字发送到电脑服务器
+6. 如选择了 AI 模式，服务器通过 AI 处理文本
+7. 处理后的文字自动输入到电脑当前焦点程序
 
-Key concepts:
-- **X11/Wayland** - Linux display server protocols
-- **Clipboard automation** - Programmatic clipboard manipulation
-- **Keyboard simulation** - Virtual keyboard input injection
-- **HTTP server patterns** - Local REST API design
-- **Platform detection** - Runtime detection of OS and display environment
-- **Tool availability checking** - Verifying presence of system automation tools
+### 支持的 AI 提示词模式
+- **无提示词**: 直接输入，不进行处理
+- **任务整理**: 将散乱的口语化描述整理成条理清晰的任务列表
+- **口语书面化**: 将口语化表达转换为规范的书面语言
+- **翻译为英文**: 实时翻译，实现即时的口译效果
 
 ## Important Constraints
-
-- **Local network only** - Server binds to localhost or local network, no internet exposure
-- **No persistent storage** - History limited to session memory (last 10 inputs)
-- **Single user application** - Designed for individual use, not multi-user
-- **Platform-specific automation** - Relies on system tools (xdotool, wtype, ydotool)
-- **Python version compatibility** - Must support Python 3.8+ for wider compatibility
-- **No authentication** - Trusted local network environment assumed
+- **网络要求**: 手机和电脑必须在同一局域网内
+- **系统要求**:
+  - Linux: 需要 X11 或 Wayland 显示服务器
+  - macOS: 需要 macOS 10.12+
+  - Windows: 需要 Windows 10+
+- **权限要求**:
+  - Linux: 可能需要配置 Wayland 权限
+  - 防火墙可能需要开放服务端口（默认 5000）
+- **AI 服务限制**:
+  - 需要智谱AI API Key（如使用 AI 处理功能）
+  - API 调用有超时限制（默认 30 秒）
+  - 网络连接到智谱AI服务必须稳定
 
 ## External Dependencies
 
-### System Dependencies (Linux)
-- **xdotool** - X11 keyboard automation tool
-- **wtype** - Wayland keyboard automation tool
-- **ydotool** - Alternative keyboard automation tool
-- **xclip/xsel** - X11 clipboard utilities
-- **wl-copy** - Wayland clipboard utility
+### AI 服务
+- **智谱AI (Zhipu AI / BigModel)**:
+  - API Base URL: `https://open.bigmodel.cn/api/anthropic`
+  - 模型: `glm-4.6`
+  - 订阅优惠: https://www.bigmodel.cn/claude-code?ic=14BY54APZA
 
-### Python Libraries
-- **flask>=3.0.0** - HTTP web framework
-- **qrcode[pil]>=7.4.2** - QR code generation
-- **pystray>=0.19.0** - System tray integration
-- **Pillow>=10.0.0** - Image processing for QR codes
-- **pyperclip>=1.8.2** - Cross-platform clipboard access
-- **pyautogui>=0.9.54** - Cross-platform GUI automation
+### 系统工具
+- **Linux X11**: xdotool, xte, xvkbd, xclip
+- **Linux Wayland**: wtype, ydotool, wl-copy, wl-paste
+- **macOS**: osascript, afplay
+- **Windows**: winsound
 
-### Development Dependencies (Optional)
-- **pyinstaller>=6.0.0** - For creating standalone executables
+### 开发工具
+- **OpenSpec CLI**: 规范驱动开发工具（`openspec` 命令）
+- **Python 虚拟环境**: 推荐使用 `venv`（`aiput-env/`）
 
-### Platform APIs
-- **Tkinter** - Standard Python GUI toolkit
-- **threading** - Python threading module
-- **subprocess** - System command execution
-- **socket** - Network communication
+## OpenSpec 规范
+项目使用 OpenSpec 进行规范驱动开发，关键规范包括：
+- `specs/mobile-ui/spec.md` - 移动端界面规范
+- `specs/ai-processing/spec.md` - AI 处理规范
+- `specs/platform-abstraction/spec.md` - 平台抽象层规范
+- `specs/notifications/spec.md` - 通知规范
+- `specs/service-management/spec.md` - 服务管理规范
 
-## Known Limitations
-
-### Current Limitations
-- **Linux Only** - Currently only supports Linux with X11/Wayland
-- **No AI Integration** - Despite the name "AIPut", currently no AI features are implemented
-- **No Voice Recognition** - Relies on mobile device's voice input capabilities
-- **Single Language Interface** - Mobile interface only in Chinese
-
-### Future Planned Features
-- **Windows/macOS Support** - Adapters are in place but need implementation
-- **AI Text Enhancement** - Chat and Agent modes for text processing
-- **Multi-language Support** - Internationalization for mobile interface
-- **Persistent History** - Option to save input history across sessions
-- **Custom Shortcuts** - Configurable keyboard shortcuts
-- **Direct Paste Mode** - Option to paste directly without typing simulation
+详见 `openspec/AGENTS.md` 了解如何使用 OpenSpec 工作流。

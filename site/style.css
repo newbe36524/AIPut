@@ -18,6 +18,10 @@ body {
 
 /* Header with hamburger menu */
 .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
     padding: 15px;
     display: flex;
     align-items: center;
@@ -247,6 +251,7 @@ body {
     display: flex;
     flex-direction: column;
     padding: 20px;
+    padding-top: 80px;
     justify-content: center;
     min-height: 0;
 }
@@ -259,6 +264,46 @@ body {
     justify-content: center;
     min-height: 0;
     position: relative;
+}
+
+/* Resend area for quick resend */
+.resend-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    background: #f8f8f8;
+    border-radius: 10px;
+    border: 1px solid #e5e5ea;
+}
+
+.resend-area.hidden {
+    display: none;
+}
+
+.resend-preview {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    color: #666;
+}
+
+.resend-button {
+    padding: 6px 14px;
+    font-size: 14px;
+    min-height: 32px;
+    background: linear-gradient(135deg, #007AFF 0%, #0056b3 100%);
+    box-shadow: 0 2px 6px rgba(0,122,255,0.2);
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+.resend-button:active {
+    background: linear-gradient(135deg, #0056b3 0%, #003d82 100%);
+    box-shadow: 0 1px 3px rgba(0,122,255,0.15);
 }
 
 #textInput {
@@ -541,6 +586,21 @@ button:disabled {
         padding: 10px 0;
     }
 
+    .resend-area {
+        margin-bottom: 6px;
+        padding: 6px 10px;
+    }
+
+    .resend-preview {
+        font-size: 13px;
+    }
+
+    .resend-button {
+        padding: 5px 12px;
+        font-size: 13px;
+        min-height: 28px;
+    }
+
     #textInput {
         padding: 15px;
         font-size: 18px;
@@ -560,11 +620,17 @@ button:disabled {
         flex-direction: row;
         align-items: center;
         padding: 20px 40px;
+        padding-top: 80px;
     }
 
     .input-container {
         flex: 1;
         padding: 0;
+    }
+
+    .resend-area {
+        margin-bottom: 8px;
+        padding: 6px 10px;
     }
 
     .header {
