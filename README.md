@@ -1,3 +1,5 @@
+# 作者发现有新工具全面替代了作者的需求，所以停更了。新工具是 https://github.com/cjpais/Handy
+
 # AIPut 📱
 
 [English](README_en.md) | 中文
